@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="progress-bar-wrap">
+  <div id="progress-bar"></div>
+  <span id="progress-label">0% Complete</span>
+</div>
+
+<!-- ============================================================
+     MAIN LAYOUT — Chat (left) + Form (right)
+============================================================ -->
+<div id="layout">
+
+  <!-- ── LEFT: Chat Panel ── -->
+  <div id="chat-panel">
+    <div id="chat-header">
+      <div id="chat-header-title">
+        <div id="chat-avatar">H</div>
+        <div>
+          <div id="chat-name">HALO Assistant</div>
+          <div id="chat-status"><span class="status-dot"></span>Online</div>
+        </div>
+      </div>
+      <button id="reset-btn" onclick="resetApp()" title="Start over">↺</button>
+    </div>
+
+    <div id="chat-messages">
+      <!-- Injected by ChatEngine -->
+    </div>
+
+    <div id="chat-input-area">
+      <!-- Quick-reply buttons (shown for quick-select questions) -->
+      <div id="quick-replies"></div>
+
+      <!-- Text / number input row -->
+      <div id="input-row">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Type your answer..."
+          onkeydown="if(event.key==='Enter') ChatEngine.handleSubmit()"
+        />
+        <button id="send-btn" onclick="ChatEngine.handleSubmit()">→</button>
+      </div>
+
+      <!-- Tag collection display (for medications) -->
+      <div id="tag-display"></div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT: Live Form Panel ── -->
+  <div id="form-panel">
+    <div id="form-header">
+      <div id="form-header-title">Live Patient Record</div>
+      <div id="form-tabs">
+        <!-- Injected by FormEngine -->
+      </div>
+    </div>
+
+    <div id="form-content">
+      <!-- Injected by FormEngine -->
+    </div>
+
+    <div id="form-footer">
+      <div id="form-footer-meta">
+        <span id="form-patient-id">ID: Pending</span>
+        <span id="form-timestamp"></span>
+      </div>
+      <button id="submit-btn" onclick="submitForm()" disabled>
+        Run Risk Assessment →
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     SUCCESS MODAL
+============================================================ -->
+<div id="success-modal">
+  <div id="success-card">
+    <div id="success-icon">✓</div>
+    <div id="success-title">Patient Record Submitted</div>
+    <div id="success-id"></div>
+    <p id="success-msg">Risk assessment and AI recommendation generation are running. You will be redirected shortly.</p>
+    <div id="success-bar-wrap"><div id="success-bar"></div></div>
+    <button onclick="window.location.href=APP.routes.recommendations">View Recommendations →</button>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="page">
+
+  <!-- Stats Bar -->
+  <div class="stats-bar" id="stats-bar">
+    <!-- Injected by records.js → StatsEngine.render() -->
+  </div>
+
+  <!-- Toolbar: Search + Filters -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        id="search-input"
+        placeholder="Search by name or patient ID..."
+        oninput="TableEngine.applyFilters()"
+      />
+    </div>
+
+    <div class="filter-group" id="filter-group">
+      <button class="filter-btn active-all" data-filter="all"    onclick="TableEngine.setFilter('all',this)">All</button>
+      <button class="filter-btn"            data-filter="high"   onclick="TableEngine.setFilter('high',this)">
+        <span class="filter-dot" style="background:var(--risk-high)"></span>High Risk
+      </button>
+      <button class="filter-btn"            data-filter="medium" onclick="TableEngine.setFilter('medium',this)">
+        <span class="filter-dot" style="background:var(--risk-med)"></span>Medium
+      </button>
+      <button class="filter-btn"            data-filter="low"    onclick="TableEngine.setFilter('low',this)">
+        <span class="filter-dot" style="background:var(--risk-low)"></span>Low
+      </button>
+    </div>
+
+    <span class="results-count" id="results-count">— patients</span>
+  </div>
+
+  <!-- Records Table -->
+  <div class="table-wrap">
+    <table id="records-table">
+      <thead>
+        <tr>
+          <th onclick="TableEngine.sort('name')">Patient <span class="sort-arrow" id="arrow-name"></span></th>
+          <th onclick="TableEngine.sort('age')">Age <span class="sort-arrow" id="arrow-age"></span></th>
+          <th>Risk Profile</th>
+          <th onclick="TableEngine.sort('hba1c')">HbA1c <span class="sort-arrow" id="arrow-hba1c"></span></th>
+          <th onclick="TableEngine.sort('sbp')">Systolic BP <span class="sort-arrow" id="arrow-sbp"></span></th>
+          <th onclick="TableEngine.sort('date')">Last Assessed <span class="sort-arrow" id="arrow-date"></span></th>
+          <th onclick="TableEngine.sort('status')">Status <span class="sort-arrow" id="arrow-status"></span></th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <!-- Injected by records.js → TableEngine.renderTable() -->
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <span class="page-info" id="page-info"></span>
+      <div class="page-btns" id="page-btns"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     SLIDE-IN DRAWER
+============================================================ -->
+<div id="drawer-overlay" onclick="DrawerEngine.close()"></div>
+
+<div id="drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-label">Patient Snapshot</div>
+      <div class="drawer-title" id="drawer-title">Loading...</div>
+    </div>
+    <button class="drawer-close" onclick="DrawerEngine.close()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body">
+    <!-- Injected by records.js → DrawerEngine.open() -->
+  </div>
+</div>
+{% endblock %}

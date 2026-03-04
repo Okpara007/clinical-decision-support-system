@@ -1,0 +1,32 @@
+<header class="halo-header">
+  <div class="header-logo">
+    <div class="logo-icon">H</div>
+    <div>
+      <div class="logo-text">HALO</div>
+      <div class="logo-sub">Clinical Decision Support</div>
+    </div>
+  </div>
+
+  <nav class="nav-breadcrumb">
+    {% for item in navbar.breadcrumbs %}
+      {% if item.url %}
+        <a href="{{ item.url }}">{{ item.label }}</a>
+      {% else %}
+        <span class="breadcrumb-current">{{ item.label }}</span>
+      {% endif %}
+      {% if not forloop.last %}
+        <span>›</span>
+      {% endif %}
+    {% endfor %}
+  </nav>
+
+  <div class="header-right">
+    <span><span class="status-dot"></span>{{ navbar.status }}</span>
+    {% if navbar.action %}
+      <a style="text-decoration: none;" class="btn btn-primary btn-sm" href="{{ navbar.action.url }}">
+        {{ navbar.action.label }}
+      </a>
+    {% endif %}
+    <span id="header-clock"></span>
+  </div>
+</header>

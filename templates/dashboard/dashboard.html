@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="page">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Injected by SidebarEngine -->
+  </aside>
+
+  <!-- ── Main ── -->
+  <main id="main">
+
+    <!-- Alert banner (shown for high/medium risk) -->
+    <div id="alert-banner" style="display:none;"></div>
+
+    <!-- Risk cards grid -->
+    <div>
+      <div class="section-heading">
+        <span class="section-heading-text">Predictive Risk Scores</span>
+        <div class="section-heading-line"></div>
+        <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">Random Forest · SHAP Explained</span>
+      </div>
+      <div id="risk-cards-grid">
+        <!-- Injected by RiskEngine -->
+      </div>
+    </div>
+
+    <!-- Global SHAP Panel -->
+    <div>
+      <div class="section-heading">
+        <span class="section-heading-text">Global Feature Importance</span>
+        <div class="section-heading-line"></div>
+      </div>
+      <div id="shap-panel">
+        <!-- Injected by ShapEngine -->
+      </div>
+    </div>
+
+  </main>
+</div>
+{% endblock %}
