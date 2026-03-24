@@ -82,7 +82,7 @@ const SidebarEngine = {
       </div>
 
       <button class="btn btn-primary" style="width:100%;" onclick="window.print()">Export PDF</button>
-      <button class="btn btn-secondary" style="width:100%;" onclick="window.location.href=APP.routes.dashboard">← Risk Dashboard</button>
+      <button class="btn btn-secondary" style="width:100%;" onclick="window.location.href='${APP.routes.dashboard}?patient=${encodeURIComponent(patient.id)}'">← Risk Dashboard</button>
       <button class="btn btn-secondary" style="width:100%;" onclick="window.location.href=APP.routes.patientEntry">+ New Patient</button>
     `;
   },
@@ -368,6 +368,17 @@ const RecommendationAPI = {
     }
     return payload;
   },
+
+  async loadLatestPatient() {
+    const response = await fetch(APP.api.patientLatestRecord, {
+      headers: { Accept: 'application/json' },
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || 'Unable to load latest patient');
+    }
+    return payload.patient;
+  },
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -376,15 +387,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   Clock.start();
 
   const params = new URLSearchParams(window.location.search);
-  const patientId = params.get('patient') || PatientSession.currentId();
-
-  if (!patientId) {
-    document.getElementById('rec-cards').innerHTML =
-      '<div class="empty-state"><div class="empty-icon">⚠️</div><div>No patient selected for recommendation generation.</div></div>';
-    return;
-  }
-
   try {
+    const patientId = params.get('patient') || (await RecommendationAPI.loadLatestPatient()).id;
     const payload = await RecommendationAPI.load(patientId);
     SidebarEngine.render(payload.patient);
     SummaryEngine.render(payload.summary, payload.model);

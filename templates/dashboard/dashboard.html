@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block page_styles %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}"/>
+{% endblock %}
 
 {% block content %}
 <div id="page">
@@ -11,7 +16,6 @@
   <!-- ── Main ── -->
   <main id="main">
 
-    <!-- Alert banner (shown for high/medium risk) -->
     <div id="alert-banner" style="display:none;"></div>
 
     <!-- Risk cards grid -->
@@ -39,4 +43,8 @@
 
   </main>
 </div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

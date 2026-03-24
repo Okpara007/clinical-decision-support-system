@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HALO — Secure Access</title>
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}"/>
+  <link rel="stylesheet" href="{% static 'css/login.css' %}"/>
+</head>
+<body class="login-body">
+
+<div id="left-panel">
+
+  <canvas id="particle-canvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Logo -->
+  <div class="left-content brand-logo">
+    <div class="brand-icon">H</div>
+    <div>
+      <div class="brand-name">HALO</div>
+      <div class="brand-tagline">Hybrid AI Clinical Support</div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="left-content hero-section">
+    <div class="hero-eyebrow">Clinical Decision Intelligence</div>
+    <div class="hero-title">
+      Precision care,<br/>
+      <span>AI-augmented</span><br/>
+      insights.
+    </div>
+    <p class="hero-desc">
+      HALO combines explainable machine learning with guideline-aligned
+      LLM recommendations to support clinicians managing complex elderly patients.
+    </p>
+
+    <div class="features">
+      <div class="feature-item">
+        <div class="feature-icon" style="background:rgba(45,125,210,0.12);">🧠</div>
+        <div>
+          <div class="feature-text-title">Predictive Risk Assessment</div>
+          <div class="feature-text-desc">Random Forest model with SHAP explainability across 4 clinical risk domains.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon" style="background:rgba(16,185,129,0.10);">📋</div>
+        <div>
+          <div class="feature-text-title">Guideline-Aligned Recommendations</div>
+          <div class="feature-text-desc">LLM-generated treatment plans validated against ADA, ESC & JNC via RAG.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon" style="background:rgba(226,185,111,0.10);">🔒</div>
+        <div>
+          <div class="feature-text-title">Secure & Auditable</div>
+          <div class="feature-text-desc">End-to-end encrypted records with full audit logging and RBAC.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="left-content left-footer">
+    <div class="ai-badge">
+      <div class="ai-badge-dot"></div>
+    </div>
+    <div class="version-tag">v1.0.0 · 2026</div>
+  </div>
+
+</div>
+
+<div id="right-panel">
+  <div class="auth-card">
+
+    <div class="auth-header">
+      <div class="auth-welcome">Secure Access</div>
+      <div class="auth-title">Welcome back</div>
+      <p class="auth-subtitle">Sign in to access the HALO clinical dashboard and patient management system.</p>
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="field-error show">{{ form.non_field_errors|join:", " }}</div>
+    {% endif %}
+
+    <form class="auth-form" method="post" onsubmit="return AuthEngine.submit(event)">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+
+      <div class="field-group">
+        <label class="field-label">Email Address</label>
+        <div class="field-wrap">
+          <span class="field-icon">✉</span>
+          <input type="email" id="input-email" class="auth-input" name="email"
+            placeholder="clinician@hospital.org" autocomplete="email"
+            value="{{ form.email.value|default_if_none:'' }}"
+            oninput="AuthEngine.validateEmail(this)"/>
+        </div>
+        <div class="field-error{% if form.email.errors %} show{% endif %}" id="err-email">
+          {% if form.email.errors %}
+            {{ form.email.errors|join:", " }}
+          {% else %}
+            Please enter a valid email address
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <div class="field-wrap">
+          <span class="field-icon">🔒</span>
+          <input type="password" id="input-password" class="auth-input" name="password"
+            placeholder="••••••••••" autocomplete="current-password"
+            oninput="AuthEngine.validatePassword(this)"/>
+          <button type="button" class="pw-toggle" id="pw-toggle" onclick="AuthEngine.togglePassword()">show</button>
+        </div>
+        <div class="field-error{% if form.password.errors %} show{% endif %}" id="err-password">
+          {% if form.password.errors %}
+            {{ form.password.errors|join:", " }}
+          {% else %}
+            Password must be at least 6 characters
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-meta">
+        <div class="remember-wrap" onclick="AuthEngine.toggleRemember()">
+          <div class="custom-checkbox" id="remember-box"></div>
+          <span class="remember-label">Remember me</span>
+        </div>
+        <button type="button" class="forgot-link" onclick="ForgotEngine.open()">Forgot password?</button>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">
+        <div class="btn-spinner" id="btn-spinner"></div>
+        <span class="btn-text" id="btn-text">SIGN IN</span>
+      </button>
+
+    </form>
+
+    <div class="divider"><div class="divider-line"></div><div class="divider-text">demo access</div><div class="divider-line"></div></div>
+
+    <div class="demo-hint">
+      <div>Use demo credentials to explore HALO:</div>
+      <div><strong>Email:</strong> demo@halo.clinic &nbsp;|&nbsp; <strong>Password:</strong> halo2025</div>
+      <div onclick="AuthEngine.fillDemo()" class="demo-fill-btn">↳ Auto-fill & sign in</div>
+    </div>
+
+    <div class="auth-footer">
+      <div>This system is for authorised healthcare professionals only.</div>
+      <div><span class="text-accent">HALO</span> · Privacy Policy · Terms of Use</div>
+    </div>
+
+  </div>
+</div>
+
+<div id="forgot-overlay" onclick="ForgotEngine.closeOnBackdrop(event)">
+  <div class="forgot-card">
+    <div class="forgot-title">Reset Password</div>
+    <p class="forgot-desc">Enter your registered email to receive a secure reset link.</p>
+    <input type="email" class="forgot-input" id="forgot-email" placeholder="your@email.com"/>
+    <div class="forgot-actions">
+      <button class="forgot-btn-primary" onclick="ForgotEngine.submit()">Send Reset Link</button>
+      <button class="forgot-btn-cancel"  onclick="ForgotEngine.close()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="success-screen">
+  <div class="success-logo">HALO</div>
+  <div class="success-msg">Authentication Successful</div>
+  <div class="success-bar-wrap"><div class="success-bar"></div></div>
+  <div class="success-redirect">Redirecting to patient portal...</div>
+</div>
+
+<script src="{% static 'js/config.js' %}"></script>
+<script src="{% static 'js/utils.js' %}"></script>
+<script src="{% static 'js/login.js' %}"></script>
+</body>
+</html>

@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block page_styles %}
+<link rel="stylesheet" href="{% static 'css/records.css' %}"/>
+{% endblock %}
 
 {% block content %}
 <div id="page">
@@ -8,7 +13,6 @@
     <!-- Injected by records.js → StatsEngine.render() -->
   </div>
 
-  <!-- Toolbar: Search + Filters -->
   <div class="toolbar">
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
@@ -66,9 +70,6 @@
 
 </div>
 
-<!-- ============================================================
-     SLIDE-IN DRAWER
-============================================================ -->
 <div id="drawer-overlay" onclick="DrawerEngine.close()"></div>
 
 <div id="drawer">
@@ -83,4 +84,8 @@
     <!-- Injected by records.js → DrawerEngine.open() -->
   </div>
 </div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/records.js' %}"></script>
 {% endblock %}

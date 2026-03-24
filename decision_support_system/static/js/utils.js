@@ -81,16 +81,6 @@ const Http = {
   },
 };
 
-const Http = {
-  getCookie(name) {
-    const cookie = document.cookie
-      .split(';')
-      .map(part => part.trim())
-      .find(part => part.startsWith(`${name}=`));
-    return cookie ? decodeURIComponent(cookie.split('=').slice(1).join('=')) : null;
-  },
-};
-
 /* ============================================================
    RISK HELPERS — Color, label, background, border
    Usage: Risk.color(75)   → 'var(--risk-high)'

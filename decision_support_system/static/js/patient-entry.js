@@ -194,9 +194,15 @@ const ChatEngine = {
   /* ── UI helpers ── */
   _showQuickReplies(options) {
     const el = document.getElementById('quick-replies');
-    el.innerHTML = options.map(opt => `
-      <button class="quick-reply-btn" onclick="ChatEngine.handleQuickReply('${opt}')">${opt}</button>
-    `).join('');
+    el.innerHTML = '';
+    options.forEach(opt => {
+      const button = document.createElement('button');
+      button.className = 'quick-reply-btn';
+      button.type = 'button';
+      button.textContent = opt;
+      button.addEventListener('click', () => this.handleQuickReply(opt));
+      el.appendChild(button);
+    });
   },
 
   _clearQuickReplies() {
@@ -416,10 +422,16 @@ function submitForm() {
 
       const modal = document.getElementById('success-modal');
       document.getElementById('success-id').textContent = `Patient ID: ${patient.id}`;
+      const redirectButton = modal.querySelector('button');
+      if (redirectButton) {
+        redirectButton.onclick = () => {
+          window.location.href = `${APP.routes.dashboard}?patient=${encodeURIComponent(patient.id)}`;
+        };
+      }
       modal.classList.add('open');
 
       setTimeout(() => {
-        window.location.href = `${APP.routes.recommendations}?patient=${encodeURIComponent(patient.id)}`;
+        window.location.href = `${APP.routes.dashboard}?patient=${encodeURIComponent(patient.id)}`;
       }, 2800);
     })
     .catch(error => {
@@ -455,7 +467,28 @@ function resetApp() {
    INIT
 ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
+  if (!document.getElementById('chat-panel') || !document.getElementById('form-content')) return;
+  window.ChatEngine = ChatEngine;
+  window.submitForm = submitForm;
+  window.resetApp = resetApp;
   Clock.start();
   FormEngine.init();
   ChatEngine.init();
+
+  const chatInput = document.getElementById('chat-input');
+  const sendButton = document.getElementById('send-btn');
+  if (chatInput) {
+    chatInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        ChatEngine.handleSubmit();
+      }
+    });
+  }
+  if (sendButton) {
+    sendButton.addEventListener('click', event => {
+      event.preventDefault();
+      ChatEngine.handleSubmit();
+    });
+  }
 });

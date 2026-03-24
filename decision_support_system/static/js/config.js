@@ -20,9 +20,9 @@ const APP = {
 
   /* Page routes */
   routes: {
-    login:           '/',
+    login:           '/accounts/sign-in/',
     records:         '/records/',
-    patientEntry:    '/patient-entry/',
+    patientEntry:    '/patient/patient-entry/',
     dashboard:       '/dashboard/',
     recommendations: '/recommendations/',
   },
@@ -34,6 +34,8 @@ const APP = {
 
   api: {
     patientRecords: '/patient/api/records/',
+    patientLatestRecord: '/patient/api/records/latest/',
+    patientRecordDetailBase: '/patient/api/records/',
     recommendations: '/dashboard/api/recommendations/',
   },
 };

@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
+from accounts.decorators import hardcoded_login_required
 from .models import Patient
 
 
@@ -60,6 +61,7 @@ def _serialize_patient(patient):
     }
 
 
+@hardcoded_login_required
 def patient_entry(request):
     return render(request, 'patient/patient_entry.html')
 
@@ -132,6 +134,7 @@ def _build_patient_from_payload(payload):
     return patient, risks, overall_risk
 
 
+@hardcoded_login_required
 @require_http_methods(['GET', 'POST'])
 def records_api(request):
     if request.method == 'POST':
@@ -165,3 +168,21 @@ def records_api(request):
 
     patients = [_serialize_patient(patient) for patient in Patient.objects.all()]
     return JsonResponse({'patients': patients})
+
+
+@hardcoded_login_required
+@require_http_methods(['GET'])
+def record_detail_api(request, patient_code):
+    patient = Patient.objects.filter(patient_code=patient_code).first()
+    if not patient:
+        return JsonResponse({'error': 'Patient not found'}, status=404)
+    return JsonResponse({'patient': _serialize_patient(patient)})
+
+
+@hardcoded_login_required
+@require_http_methods(['GET'])
+def latest_record_api(request):
+    patient = Patient.objects.order_by('-id').first()
+    if not patient:
+        return JsonResponse({'error': 'No patients found'}, status=404)
+    return JsonResponse({'patient': _serialize_patient(patient)})

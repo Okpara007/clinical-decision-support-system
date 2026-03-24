@@ -22,6 +22,12 @@
 
   <div class="header-right">
     <span><span class="status-dot"></span>{{ navbar.status }}</span>
+    {% if request.session.accounts_authenticated %}
+      <form method="post" action="{% url 'accounts:sign_out' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary btn-sm">Sign Out</button>
+      </form>
+    {% endif %}
     {% if navbar.action %}
       <a style="text-decoration: none;" class="btn btn-primary btn-sm" href="{{ navbar.action.url }}">
         {{ navbar.action.label }}

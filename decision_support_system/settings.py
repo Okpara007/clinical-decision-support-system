@@ -5,6 +5,23 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def _load_dotenv(filepath):
+    if not filepath.exists():
+        return
+    for raw_line in filepath.read_text(encoding='utf-8').splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
+_load_dotenv(BASE_DIR / '.env')
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -29,6 +46,7 @@ INSTALLED_APPS = [
     'pages',
     'patient',
     'dashboard',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -112,3 +130,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'decision_support_system/static')]
 
 OPENAI_RECOMMENDATION_MODEL = os.environ.get('OPENAI_RECOMMENDATION_MODEL', 'gpt-4o-mini')
+HARD_CODED_AUTH_EMAIL = os.environ.get('HARD_CODED_AUTH_EMAIL', 'demo@halo.clinic')
+HARD_CODED_AUTH_PASSWORD = os.environ.get('HARD_CODED_AUTH_PASSWORD', 'halo2025')

@@ -1,42 +1,28 @@
-/* ============================================================
-   HALO — DASHBOARD PAGE LOGIC
-   assets/js/dashboard.js
 
-   Modules:
-   - SidebarEngine  — Patient summary card + overall risk
-   - RiskEngine     — 4 animated risk score cards with SHAP
-   - ShapEngine     — Global feature importance panel
-   - AlertEngine    — Top alert banner based on risk level
-   - LoadingEngine  — Loading steps animation
-============================================================ */
-
-/* ============================================================
-   SIDEBAR ENGINE
-============================================================ */
 const SidebarEngine = {
   render(patient, scores) {
-    const d        = patient.data;
-    const initials = ClinicalUtils.initials(d.fullName);
+    const initials = ClinicalUtils.initials(patient.name);
     const overall  = ScoreEngine.overall(scores);
     const rs       = Risk.styles(overall);
-    const bmi      = ClinicalUtils.bmi(d.weight, d.height);
+    const bmi      = ClinicalUtils.bmi(patient.weight, patient.height);
+    const patientId = patient.id || 'PT-UNKNOWN';
 
     document.getElementById('sidebar').innerHTML = `
 
       <!-- Patient card -->
       <div class="sidebar-patient-card">
         <div class="patient-avatar">${initials}</div>
-        <div class="patient-name-display">${d.fullName || 'Unknown Patient'}</div>
-        <div class="patient-id-display">${patient.patientId}</div>
+        <div class="patient-name-display">${patient.name || 'Unknown Patient'}</div>
+        <div class="patient-id-display">${patientId}</div>
 
-        <div class="info-row"><span class="info-label">Age</span>        <span class="info-value">${d.age ? d.age + ' yrs' : '—'}</span></div>
-        <div class="info-row"><span class="info-label">Gender</span>     <span class="info-value">${d.gender || '—'}</span></div>
+        <div class="info-row"><span class="info-label">Age</span>        <span class="info-value">${patient.age ? patient.age + ' yrs' : '—'}</span></div>
+        <div class="info-row"><span class="info-label">Gender</span>     <span class="info-value">${patient.gender === 'M' ? 'Male' : patient.gender === 'F' ? 'Female' : (patient.gender || '—')}</span></div>
         <div class="info-row"><span class="info-label">BMI</span>        <span class="info-value">${bmi || '—'}</span></div>
-        <div class="info-row"><span class="info-label">HbA1c</span>      <span class="info-value">${d.hba1c ? d.hba1c + '%' : '—'}</span></div>
-        <div class="info-row"><span class="info-label">Systolic BP</span><span class="info-value">${d.systolicBP ? d.systolicBP + ' mmHg' : '—'}</span></div>
-        <div class="info-row"><span class="info-label">Smoking</span>    <span class="info-value">${d.smokingStatus || '—'}</span></div>
-        <div class="info-row"><span class="info-label">Adherence</span>  <span class="info-value">${d.adherence || '—'}</span></div>
-        <div class="info-row"><span class="info-label">Assessed</span>   <span class="info-value">${ClinicalUtils.formatDate(patient.submittedAt)}</span></div>
+        <div class="info-row"><span class="info-label">HbA1c</span>      <span class="info-value">${patient.hba1c ? patient.hba1c + '%' : '—'}</span></div>
+        <div class="info-row"><span class="info-label">Systolic BP</span><span class="info-value">${patient.sbp ? patient.sbp + ' mmHg' : '—'}</span></div>
+        <div class="info-row"><span class="info-label">Smoking</span>    <span class="info-value">${patient.smoking || '—'}</span></div>
+        <div class="info-row"><span class="info-label">Adherence</span>  <span class="info-value">${patient.adherence || '—'}</span></div>
+        <div class="info-row"><span class="info-label">Assessed</span>   <span class="info-value">${patient.date ? ClinicalUtils.formatDate(patient.date) : '—'}</span></div>
       </div>
 
       <!-- Overall risk index -->
@@ -52,7 +38,7 @@ const SidebarEngine = {
       </div>
 
       <!-- Action buttons -->
-      <button class="btn btn-primary" style="width:100%;" onclick="window.location.href=APP.routes.recommendations">
+      <button class="btn btn-primary" style="width:100%;" onclick="window.location.href='${APP.routes.recommendations}?patient=${encodeURIComponent(patientId)}'">
         View Recommendations →
       </button>
       <button class="btn btn-secondary" style="width:100%;" onclick="window.location.href=APP.routes.records">
@@ -71,9 +57,6 @@ const SidebarEngine = {
   },
 };
 
-/* ============================================================
-   RISK ENGINE — Renders all 4 risk cards with gauges + SHAP
-============================================================ */
 const RiskEngine = {
 
   async renderAll(patient, scores) {
@@ -89,7 +72,9 @@ const RiskEngine = {
 
     RISK_CARDS.forEach((card, i) => {
       const score      = scoreValues[i];
-      const confidence = ScoreEngine.confidence(patient.data, card.id);
+      const confidence = ScoreEngine.confidence({
+        fullName: patient.name,
+      }, card.id);
       const rs         = Risk.styles(score);
       const circumference = 2 * Math.PI * 38; // radius=38
       const offset     = circumference - (score / 100) * circumference;
@@ -162,14 +147,12 @@ const RiskEngine = {
       grid.appendChild(el);
     });
 
-    /* Staggered reveal + animate gauges */
     for (let i = 0; i < RISK_CARDS.length; i++) {
       await this._delay(180);
       const card = document.getElementById(`card-${RISK_CARDS[i].id}`);
       if (card) card.classList.add('revealed');
     }
 
-    /* Animate gauges after cards reveal */
     await this._delay(200);
     RISK_CARDS.forEach((card, i) => {
       const score = scoreValues[i];
@@ -178,10 +161,8 @@ const RiskEngine = {
 
       const gaugeEl = document.getElementById(`gauge-${card.id}`);
       const confEl  = document.getElementById(`conf-${card.id}`);
-      const confidence = ScoreEngine.confidence({ fullName: 'x' }, card.id);
-
       if (gaugeEl) gaugeEl.style.strokeDashoffset = offset;
-      if (confEl)  confEl.style.width = ScoreEngine.confidence({ fullName: '' }, card.id) + '%';
+      if (confEl)  confEl.style.width = ScoreEngine.confidence({ fullName: patient.name || '' }, card.id) + '%';
 
       /* Animate SHAP bars */
       document.querySelectorAll(`#card-${card.id} .shap-bar-fill`).forEach(bar => {
@@ -194,20 +175,15 @@ const RiskEngine = {
   _delay(ms) { return new Promise(r => setTimeout(r, ms)); },
 };
 
-/* ============================================================
-   SHAP ENGINE — Global feature importance panel
-============================================================ */
 const ShapEngine = {
   render(patient, scores) {
-    const overall = ScoreEngine.overall(scores);
-
     const features = [
-      { name:'HbA1c Level',     value: patient.data.hba1c ? patient.data.hba1c + '%' : '—',      impact:'HIGH',   dir:'+' },
-      { name:'Systolic BP',     value: patient.data.systolicBP ? patient.data.systolicBP + ' mmHg' : '—', impact:'HIGH',   dir:'+' },
-      { name:'Medication Count',value: Array.isArray(patient.data.currentMeds) ? patient.data.currentMeds.length + ' drugs' : '—', impact:'MED', dir:'+' },
-      { name:'Age',             value: patient.data.age ? patient.data.age + ' yrs' : '—',        impact:'MED',    dir:'+' },
-      { name:'Med Adherence',   value: patient.data.adherence || '—',                             impact:'MED',    dir:'-' },
-      { name:'Creatinine',      value: patient.data.creatinine ? patient.data.creatinine + ' mg/dL' : '—', impact:'LOW', dir:'+' },
+      { name:'HbA1c Level',     value: patient.hba1c ? patient.hba1c + '%' : '—',      impact:'MED',   dir:'+' },
+      { name:'Systolic BP',     value: patient.sbp ? patient.sbp + ' mmHg' : '—', impact:'MED',   dir:'+' },
+      { name:'Medication Count',value: Array.isArray(patient.meds) ? patient.meds.length + ' drugs' : '—', impact:'MED', dir:'+' },
+      { name:'Age',             value: patient.age ? patient.age + ' yrs' : '—',        impact:'MED',    dir:'+' },
+      { name:'Med Adherence',   value: patient.adherence || '—',                             impact:'MED',    dir:'-' },
+      { name:'Creatinine',      value: patient.creatinine ? patient.creatinine + ' mg/dL' : '—', impact:'MED', dir:'+' },
     ];
 
     const impactColor = { HIGH:'var(--risk-high)', MED:'var(--risk-med)', LOW:'var(--risk-low)' };
@@ -225,9 +201,6 @@ const ShapEngine = {
   },
 };
 
-/* ============================================================
-   ALERT ENGINE — Top banner based on highest risk score
-============================================================ */
 const AlertEngine = {
   render(scores) {
     const max    = Math.max(...Object.values(scores));
@@ -257,10 +230,46 @@ const AlertEngine = {
   },
 };
 
-/* ============================================================
-   INIT
-============================================================ */
+const DashboardAPI = {
+  async loadPatient(patientId) {
+    const response = await fetch(
+      `${APP.api.patientRecordDetailBase}${encodeURIComponent(patientId)}/`,
+      { headers: { Accept: 'application/json' } },
+    );
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || 'Unable to load patient for dashboard');
+    }
+    return payload.patient;
+  },
+
+  async loadLatestPatient() {
+    const response = await fetch(APP.api.patientLatestRecord, {
+      headers: { Accept: 'application/json' },
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || 'Unable to load latest patient for dashboard');
+    }
+    return payload.patient;
+  },
+};
+
+function _normalizeScores(risks = {}) {
+  const asNum = value => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  return {
+    hypoglycemia: asNum(risks.hypoglycemia),
+    cardiovascular: asNum(risks.cardiovascular),
+    bloodpressure: asNum(risks.bloodpressure),
+    polypharmacy: asNum(risks.polypharmacy),
+  };
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  if (!document.getElementById('risk-cards-grid') || !document.getElementById('sidebar')) return;
   Clock.start();
 
   /* Run loading animation */
@@ -273,13 +282,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     'Preparing dashboard...',
   ], 320);
 
-  /* Load patient data and compute scores */
-  const patient = PatientSession.load();
-  const scores  = ScoreEngine.compute(patient.data);
+  const params = new URLSearchParams(window.location.search);
+  const patientId = params.get('patient');
 
-  /* Render all sections */
-  SidebarEngine.render(patient, scores);
-  AlertEngine.render(scores);
-  await RiskEngine.renderAll(patient, scores);
-  ShapEngine.render(patient, scores);
+  let patient = null;
+  try {
+    patient = patientId
+      ? await DashboardAPI.loadPatient(patientId)
+      : await DashboardAPI.loadLatestPatient();
+  } catch (error) {
+    console.error(error);
+    const grid = document.getElementById('risk-cards-grid');
+    const shap = document.getElementById('shap-panel');
+    const banner = document.getElementById('alert-banner');
+    if (banner) banner.style.display = 'none';
+    if (grid) {
+      grid.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div>${error.message}</div></div>`;
+    }
+    if (shap) shap.innerHTML = '';
+    return;
+  }
+
+  const normalizedScores = _normalizeScores(patient.risks || {});
+  patient.risks = normalizedScores;
+
+  SidebarEngine.render(patient, normalizedScores);
+  AlertEngine.render(normalizedScores);
+  await RiskEngine.renderAll(patient, normalizedScores);
+  ShapEngine.render(patient, normalizedScores);
 });

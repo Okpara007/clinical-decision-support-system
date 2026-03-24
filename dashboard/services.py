@@ -7,6 +7,27 @@ class RecommendationServiceError(Exception):
     pass
 
 
+def _extract_json_candidate(payload):
+    output_text = payload.get('output_text')
+    if isinstance(output_text, str) and output_text.strip():
+        return output_text.strip()
+
+    for item in payload.get('output', []) or []:
+        for content in item.get('content', []) or []:
+            for key in ('text', 'json', 'arguments'):
+                value = content.get(key)
+                if isinstance(value, str) and value.strip():
+                    return value.strip()
+                if isinstance(value, dict):
+                    return json.dumps(value)
+
+    for key in ('text', 'content'):
+        value = payload.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
+
+
 def _derive_key_factors(patient_payload):
     factors = []
 
@@ -179,9 +200,13 @@ def generate_recommendations(patient_payload):
     except error.URLError as exc:
         raise RecommendationServiceError(f'Unable to reach OpenAI: {exc.reason}') from exc
 
-    output_text = payload.get('output_text')
+    output_text = _extract_json_candidate(payload)
     if not output_text:
-        raise RecommendationServiceError('OpenAI returned no recommendation output.')
+        status = payload.get('status')
+        incomplete = payload.get('incomplete_details')
+        raise RecommendationServiceError(
+            f'OpenAI returned no recommendation output. status={status!r}, incomplete_details={incomplete!r}'
+        )
 
     try:
         parsed = json.loads(output_text)

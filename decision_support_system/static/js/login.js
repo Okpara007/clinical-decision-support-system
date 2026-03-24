@@ -146,7 +146,7 @@ const AuthEngine = {
     document.getElementById('remember-box').classList.toggle('checked', this.remember);
   },
 
-  /* Fill in demo credentials and auto-submit */
+  /* Fill in demo credentials */
   fillDemo() {
     const emailInput = document.getElementById('input-email');
     const passInput  = document.getElementById('input-password');
@@ -154,11 +154,10 @@ const AuthEngine = {
     passInput.value  = 'halo2025';
     this.validateEmail(emailInput);
     this.validatePassword(passInput);
-    setTimeout(() => this.submit(null), 400);
   },
 
   /* Form submission handler */
-  async submit(e) {
+  submit(e) {
     if (e) e.preventDefault();
 
     const emailInput = document.getElementById('input-email');
@@ -169,20 +168,12 @@ const AuthEngine = {
     const emailOk = this.validateEmail(emailInput);
     const passOk  = this.validatePassword(passInput);
 
-    /* Abort if invalid */
-    if (!emailOk || !passOk) return;
+    if (!emailOk || !passOk) return false;
 
-    /* Show loading state */
     btn.classList.add('loading');
     btnText.textContent = 'AUTHENTICATING...';
-
-    /* Simulate auth call */
-    await new Promise(r => setTimeout(r, 1800));
-
-    /* Show success screen then redirect */
-    document.getElementById('success-screen').classList.add('show');
-    await new Promise(r => setTimeout(r, 2200));
-    window.location.href = APP.routes.records;
+    e.target.submit();
+    return true;
   },
 };
 
@@ -211,7 +202,7 @@ const ForgotEngine = {
       return;
     }
     this.close();
-    Toast.show(`Reset link sent to ${email}`);
+    alert(`Reset link sent to ${email}`);
   },
 };
 

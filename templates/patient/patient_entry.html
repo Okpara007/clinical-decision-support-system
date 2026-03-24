@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block page_styles %}
+<link rel="stylesheet" href="{% static 'css/patient-entry.css' %}"/>
+{% endblock %}
 
 {% block content %}
 <div id="progress-bar-wrap">
@@ -6,12 +11,8 @@
   <span id="progress-label">0% Complete</span>
 </div>
 
-<!-- ============================================================
-     MAIN LAYOUT — Chat (left) + Form (right)
-============================================================ -->
 <div id="layout">
 
-  <!-- ── LEFT: Chat Panel ── -->
   <div id="chat-panel">
     <div id="chat-header">
       <div id="chat-header-title">
@@ -29,26 +30,22 @@
     </div>
 
     <div id="chat-input-area">
-      <!-- Quick-reply buttons (shown for quick-select questions) -->
+
       <div id="quick-replies"></div>
 
-      <!-- Text / number input row -->
       <div id="input-row">
         <input
           type="text"
           id="chat-input"
           placeholder="Type your answer..."
-          onkeydown="if(event.key==='Enter') ChatEngine.handleSubmit()"
         />
-        <button id="send-btn" onclick="ChatEngine.handleSubmit()">→</button>
+        <button id="send-btn" type="button">→</button>
       </div>
 
-      <!-- Tag collection display (for medications) -->
       <div id="tag-display"></div>
     </div>
   </div>
 
-  <!-- ── RIGHT: Live Form Panel ── -->
   <div id="form-panel">
     <div id="form-header">
       <div id="form-header-title">Live Patient Record</div>
@@ -74,9 +71,6 @@
 
 </div>
 
-<!-- ============================================================
-     SUCCESS MODAL
-============================================================ -->
 <div id="success-modal">
   <div id="success-card">
     <div id="success-icon">✓</div>
@@ -84,7 +78,11 @@
     <div id="success-id"></div>
     <p id="success-msg">Risk assessment and AI recommendation generation are running. You will be redirected shortly.</p>
     <div id="success-bar-wrap"><div id="success-bar"></div></div>
-    <button onclick="window.location.href=APP.routes.recommendations">View Recommendations →</button>
+    <button onclick="window.location.href=APP.routes.dashboard">View Risk Dashboard →</button>
   </div>
 </div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/patient-entry.js' %}"></script>
 {% endblock %}

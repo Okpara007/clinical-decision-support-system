@@ -1,14 +1,17 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block page_styles %}
+<link rel="stylesheet" href="{% static 'css/recommendations.css' %}"/>
+{% endblock %}
 
 {% block content %}
 <div id="page">
 
-  <!-- ── Sidebar ── -->
   <aside class="sidebar" id="sidebar">
     <!-- Injected by SidebarEngine -->
   </aside>
 
-  <!-- ── Main ── -->
   <main id="main">
 
     <!-- Clinical Summary Banner -->
@@ -42,9 +45,6 @@
   </main>
 </div>
 
-<!-- ============================================================
-     CITATION MODAL
-============================================================ -->
 <div id="citation-modal" onclick="CitationEngine.closeOnBackdrop(event)">
   <div class="citation-card">
     <div class="citation-modal-header">
@@ -61,4 +61,8 @@
   <span id="halo-toast-icon">✓</span>
   <span id="halo-toast-text">Feedback submitted</span>
 </div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/recommendations.js' %}"></script>
 {% endblock %}

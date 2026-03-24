@@ -1,16 +1,3 @@
-/* ============================================================
-   HALO — RECORDS PAGE LOGIC
-   assets/js/records.js
-
-   Modules:
-   - StatsEngine   — Renders top 4 stat cards
-   - TableEngine   — Render, sort, filter, paginate table
-   - DrawerEngine  — Slide-in patient detail drawer
-============================================================ */
-
-/* ============================================================
-   STATS ENGINE
-============================================================ */
 const StatsEngine = {
   render(patients) {
     const total = patients.length;
@@ -39,9 +26,6 @@ const StatsEngine = {
   },
 };
 
-/* ============================================================
-   TABLE ENGINE — render, sort, filter, paginate
-============================================================ */
 const TableEngine = {
   allData:       [],
   currentFilter: 'all',
@@ -50,7 +34,6 @@ const TableEngine = {
   pageSize:      8,
   filteredData:  [],
 
-  /* Apply search + risk filter then re-render */
   applyFilters() {
     const query = document.getElementById('search-input').value.toLowerCase().trim();
 
@@ -70,7 +53,6 @@ const TableEngine = {
     this.renderTable();
   },
 
-  /* Sort filtered data by column */
   sort(col) {
     if (this.currentSort.col === col) {
       this.currentSort.dir = this.currentSort.dir === 'asc' ? 'desc' : 'asc';
@@ -78,7 +60,6 @@ const TableEngine = {
       this.currentSort = { col, dir:'asc' };
     }
 
-    /* Update arrow indicators */
     document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
     document.querySelectorAll('th').forEach(th => th.classList.remove('sorted'));
     const arrowEl = document.getElementById(`arrow-${col}`);
@@ -102,7 +83,6 @@ const TableEngine = {
     });
   },
 
-  /* Set active risk filter */
   setFilter(level, btn) {
     this.currentFilter = level;
     document.querySelectorAll('.filter-btn').forEach(b => b.className = 'filter-btn');
@@ -110,7 +90,6 @@ const TableEngine = {
     this.applyFilters();
   },
 
-  /* Render the current page of rows */
   renderTable() {
     const tbody = document.getElementById('table-body');
     const start = (this.currentPage - 1) * this.pageSize;
@@ -130,7 +109,6 @@ const TableEngine = {
       const initials = ClinicalUtils.initials(p.name);
       const date     = ClinicalUtils.formatDate(p.date);
 
-      /* Risk mini-badges */
       const badges = [
         { label:'HG', score:risks.hypoglycemia },
         { label:'CV', score:risks.cardiovascular },
@@ -141,7 +119,6 @@ const TableEngine = {
         return `<span class="risk-mini" style="color:${s.color};background:${s.bg};border:1px solid ${s.border};">${r.label} ${r.score}</span>`;
       }).join('');
 
-      /* Status badge */
       const sc  = Risk.styles(p.status === 'Urgent' ? 75 : p.status === 'Pending' ? 50 : 20);
       const statusStyle = `color:${sc.color};background:${sc.bg};border:1px solid ${sc.border};`;
 
@@ -164,7 +141,7 @@ const TableEngine = {
           <td><div class="mono-val" style="font-size:11px;">${date}</div></td>
           <td><span class="status-badge" style="${statusStyle}">${p.status}</span></td>
           <td onclick="event.stopPropagation()">
-            <button class="table-action-btn btn-view-dash" onclick="window.location.href=APP.routes.dashboard">Dashboard →</button>
+            <button class="table-action-btn btn-view-dash" onclick="window.location.href='${APP.routes.dashboard}?patient=${encodeURIComponent(p.id)}'">Dashboard →</button>
           </td>
         </tr>`;
     }).join('');
@@ -172,7 +149,6 @@ const TableEngine = {
     this._renderPagination();
   },
 
-  /* Render pagination controls */
   _renderPagination() {
     const total      = this.filteredData.length;
     const totalPages = Math.ceil(total / this.pageSize);
@@ -215,9 +191,6 @@ const TableEngine = {
   },
 };
 
-/* ============================================================
-   DRAWER ENGINE — Slide-in patient detail panel
-============================================================ */
 const DrawerEngine = {
   open(patientId) {
     const p = TableEngine.allData.find(x => x.id === patientId);
@@ -319,10 +292,10 @@ const DrawerEngine = {
       </div>
 
       <div class="drawer-actions">
-        <button class="drawer-action-btn dab-primary" onclick="window.location.href=APP.routes.dashboard">
+        <button class="drawer-action-btn dab-primary" onclick="window.location.href='${APP.routes.dashboard}?patient=${encodeURIComponent(p.id)}'">
           Open Risk Dashboard →
         </button>
-        <button class="drawer-action-btn dab-secondary" onclick="window.location.href=APP.routes.recommendations">
+        <button class="drawer-action-btn dab-secondary" onclick="window.location.href='${APP.routes.recommendations}?patient=${encodeURIComponent(p.id)}'">
           View Recommendations
         </button>
       </div>
@@ -347,10 +320,8 @@ const RecordsAPI = {
   },
 };
 
-/* ============================================================
-   INIT
-============================================================ */
 document.addEventListener('DOMContentLoaded', async () => {
+  if (!document.getElementById('table-body') || !document.getElementById('stats-bar')) return;
   Clock.start();
 
   try {
@@ -368,7 +339,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     Toast.show('Failed to load patient records', 'error');
   }
 
-  /* Set default sort arrow */
   const arrow = document.getElementById('arrow-date');
   if (arrow) { arrow.textContent = '↓'; arrow.closest('th').classList.add('sorted'); }
 });

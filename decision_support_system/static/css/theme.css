@@ -1,29 +1,6 @@
-/* ============================================================
-   HALO FRONTEND — SHARED THEME
-   assets/css/theme.css
 
-   Contains:
-   - CSS custom properties (design tokens)
-   - Base reset & body styles
-   - Scrollbar
-   - Shared typography utilities
-   - Shared header styles
-   - Shared nav breadcrumb
-   - Shared animations (fade-up, slide-in, pulse-dot)
-   - Shared button styles
-   - Shared form element styles
-   - Risk badge utilities
-   - Status badge utilities
-============================================================ */
-
-/* ============================================================
-   GOOGLE FONTS — imported here once, referenced everywhere
-============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 
-/* ============================================================
-   DESIGN TOKENS — CSS Custom Properties
-============================================================ */
 :root {
   /* Backgrounds */
   --bg-base:         #080f1a;
@@ -78,9 +55,6 @@
   --font-body:       'IBM Plex Sans', sans-serif;
 }
 
-/* ============================================================
-   RESET & BASE
-============================================================ */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -103,17 +77,11 @@ body {
   background-size: 40px 40px;
 }
 
-/* ============================================================
-   SCROLLBAR
-============================================================ */
 ::-webkit-scrollbar          { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track    { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb    { background: var(--border); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-/* ============================================================
-   TYPOGRAPHY UTILITIES
-============================================================ */
 .font-display { font-family: var(--font-display); }
 .font-mono    { font-family: var(--font-mono); }
 .font-body    { font-family: var(--font-body); }
